@@ -132,7 +132,7 @@ export default class JoyrideOverlay extends React.Component {
 
     const isFixedTarget = hasPosition(elements[0]);
 
-    return {
+    return [{
       ...(isLegacy() ? styles.spotlightLegacy : styles.spotlight),
       height: Math.round(height),
       left: Math.round(leftElementPos.x - spotlightPadding),
@@ -142,7 +142,7 @@ export default class JoyrideOverlay extends React.Component {
       top: topElementPos.y - spotlightPadding,
       transition: 'opacity 0.2s',
       width: Math.round(width),
-    };
+    }];
   };
 
   get spotlightStyles() {
