@@ -38,12 +38,12 @@ export default class JoyrideOverlay extends React.Component {
     spotlightPadding: PropTypes.number,
     styles: PropTypes.object.isRequired,
     target: PropTypes.oneOfType([PropTypes.object, PropTypes.string]).isRequired,
-    group: PropTypes.bool
+    group: PropTypes.bool,
   };
 
   static defaultProps = {
-    group: false
-  }
+    group: false,
+  };
 
   componentDidMount() {
     const { debug, disableScrolling, disableScrollParentFix, target } = this.props;
@@ -104,32 +104,34 @@ export default class JoyrideOverlay extends React.Component {
     this.scrollParent.removeEventListener('scroll', this.handleScroll);
   }
 
-  get getGroupStyles(elements) {
+  getGroupStyles = elements => {
     const { showSpotlight } = this.state;
-    const {
-      spotlightClicks,
-      spotlightPadding,
-      styles,
-    } = this.props;
+    const { spotlightClicks, spotlightPadding, styles } = this.props;
 
-    const elementsSortedByPosY = [...elements].sort((el1, el2) => {
-      return el1.getBoundingClientRect().y - el2.getBoundingClientRect().y
-    })
-    const elementsSortedByPosX = [...elements].sort((el1, el2) => {
-        return el1.getBoundingClientRect().x - el2.getBoundingClientRect().x
-    })
+    const elementsSortedByPosY = [...elements].sort(
+      (el1, el2) => el1.getBoundingClientRect().y - el2.getBoundingClientRect().y,
+    );
+    const elementsSortedByPosX = [...elements].sort(
+      (el1, el2) => el1.getBoundingClientRect().x - el2.getBoundingClientRect().x,
+    );
 
-    const topElementPos = elementsSortedByPosY[0].getBoundingClientRect()
-    const bottomElementPos = elementsSortedByPosY[elementsSortedByPosY.length - 1].getBoundingClientRect()
+    const topElementPos = elementsSortedByPosY[0].getBoundingClientRect();
+    const bottomElementPos = elementsSortedByPosY[
+      elementsSortedByPosY.length - 1
+    ].getBoundingClientRect();
 
-    const leftElementPos = elementsSortedByPosX[0].getBoundingClientRect()
-    const rightElementPos = elementsSortedByPosX[elementsSortedByPosX.length - 1].getBoundingClientRect()
+    const leftElementPos = elementsSortedByPosX[0].getBoundingClientRect();
+    const rightElementPos = elementsSortedByPosX[
+      elementsSortedByPosX.length - 1
+    ].getBoundingClientRect();
 
-    const height = bottomElementPos.y - topElementPos.y + bottomElementPos.height + spotlightPadding * 2
-    const width = rightElementPos.x - leftElementPos.x + rightElementPos.width + spotlightPadding * 2
+    const height =
+      bottomElementPos.y - topElementPos.y + bottomElementPos.height + spotlightPadding * 2;
+    const width =
+      rightElementPos.x - leftElementPos.x + rightElementPos.width + spotlightPadding * 2;
 
     const isFixedTarget = hasPosition(elements[0]);
-    
+
     return {
       ...(isLegacy() ? styles.spotlightLegacy : styles.spotlight),
       height: Math.round(height),
@@ -141,7 +143,7 @@ export default class JoyrideOverlay extends React.Component {
       transition: 'opacity 0.2s',
       width: Math.round(width),
     };
-  }
+  };
 
   get spotlightStyles() {
     const { showSpotlight } = this.state;
@@ -151,15 +153,16 @@ export default class JoyrideOverlay extends React.Component {
       spotlightPadding,
       styles,
       target,
-      group
+      group,
     } = this.props;
 
-    const elements = (()=>{
-      if (typeof target === 'string') return [
-        ...document.querySelectorAll(target)
-      ]
-      return target && target.length > 0 ? [...target] : [target]
-    })()
+    const elements = (() => {
+      if (typeof target === 'string') return [...document.querySelectorAll(target)];
+      if (target && target.length > 0) {
+        return target.reduce((elements, t) => typeof t === 'string' ? [...elements, ...document.querySelectorAll(t)] : [...elements, t], [])
+      }
+      return []
+    })();
 
     if (!group || elements.length < 2) {
       return elements.map(element => {
@@ -178,17 +181,16 @@ export default class JoyrideOverlay extends React.Component {
           transition: 'opacity 0.2s',
           width: Math.round(elementRect.width + spotlightPadding * 2),
         };
-      })
+      });
     }
 
-    return this.getGroupStyles(elements)
+    return this.getGroupStyles(elements);
   }
 
   handleMouseMove = e => {
     const { mouseOverSpotlight } = this.state;
 
     const isInAnySpotLight = this.spotlightStyles.some(spotlightStyle => {
-
       const { height, left, position, top, width } = spotlightStyle;
 
       const offsetY = position === 'fixed' ? e.clientY : e.pageY;
@@ -197,12 +199,11 @@ export default class JoyrideOverlay extends React.Component {
       const inSpotlightWidth = offsetX >= left && offsetX <= left + width;
       const inSpotlight = inSpotlightWidth && inSpotlightHeight;
 
-      return inSpotlight
-
-    })
+      return inSpotlight;
+    });
 
     if (isInAnySpotLight !== mouseOverSpotlight) {
-      this.updateState({ mouseOverSpotlight: inSpotlight });
+      this.updateState({ mouseOverSpotlight: isInAnySpotLight });
     }
   };
 
@@ -277,9 +278,8 @@ export default class JoyrideOverlay extends React.Component {
     };
 
     const spotlights = this.spotlightStyles.map((spotlightStyles, index) => {
-
       let spotlight = placement !== 'center' && showSpotlight && (
-        <Spotlight styles={spotlightStyles} key={index}/>
+        <Spotlight styles={spotlightStyles} key={index} />
       );
 
       // Hack for Safari bug with mix-blend-mode with z-index
@@ -294,8 +294,8 @@ export default class JoyrideOverlay extends React.Component {
         delete stylesOverlay.backgroundColor;
       }
 
-      return spotlight
-    })
+      return spotlight;
+    });
 
     return (
       <div className="react-joyride__overlay" style={stylesOverlay} onClick={onClickOverlay}>
