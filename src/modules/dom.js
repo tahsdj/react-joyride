@@ -55,6 +55,9 @@ export function getElement(element: string | HTMLElement): ?HTMLElement {
     return document.querySelector(element);
   }
 
+  if (Array.isArray(element)) {
+    return typeof element[0] === 'string' ? document.querySelector(element[0]) : element[0]
+  }
   return element;
 }
 
