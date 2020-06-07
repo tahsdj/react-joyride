@@ -47,7 +47,7 @@ export default class JoyrideOverlay extends React.Component {
 
   componentDidMount() {
     const { debug, disableScrolling, disableScrollParentFix, target } = this.props;
-    const element = getElement(target);
+    const element = Array.isArray(target) ? getElement(target[0]) : getElement(target);
 
     this.scrollParent = getScrollParent(element, disableScrollParentFix, true);
     this._isMounted = true;
