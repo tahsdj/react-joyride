@@ -132,17 +132,19 @@ export default class JoyrideOverlay extends React.Component {
 
     const isFixedTarget = hasPosition(elements[0]);
 
-    return [{
-      ...(isLegacy() ? styles.spotlightLegacy : styles.spotlight),
-      height: Math.round(height),
-      left: Math.round(leftElementPos.x - spotlightPadding),
-      opacity: showSpotlight ? 1 : 0,
-      pointerEvents: spotlightClicks ? 'none' : 'auto',
-      position: isFixedTarget ? 'fixed' : 'absolute',
-      top: topElementPos.y - spotlightPadding,
-      transition: 'opacity 0.2s',
-      width: Math.round(width),
-    }];
+    return [
+      {
+        ...(isLegacy() ? styles.spotlightLegacy : styles.spotlight),
+        height: Math.round(height),
+        left: Math.round(leftElementPos.x - spotlightPadding),
+        opacity: showSpotlight ? 1 : 0,
+        pointerEvents: spotlightClicks ? 'none' : 'auto',
+        position: isFixedTarget ? 'fixed' : 'absolute',
+        top: topElementPos.y - spotlightPadding,
+        transition: 'opacity 0.2s',
+        width: Math.round(width),
+      },
+    ];
   };
 
   get spotlightStyles() {
@@ -154,32 +156,52 @@ export default class JoyrideOverlay extends React.Component {
       styles,
       target,
       group,
+      paddingSize,
     } = this.props;
 
     const elements = (() => {
       if (typeof target === 'string') return [...document.querySelectorAll(target)];
-      if (target && target.length > 0) {
-        return target.reduce((elements, t) => typeof t === 'string' ? [...elements, ...document.querySelectorAll(t)] : [...elements, t], [])
+      if (Array.isArray(target)) {
+        return target.reduce(
+          (elements, t) =>
+            typeof t === 'string'
+              ? [...elements, ...document.querySelectorAll(t)]
+              : [...elements, getElement(t)],
+          [],
+        );
       }
-      return []
+      return [];
+    })();
+
+    const padding = (() => {
+      switch (paddingSize) {
+        case 'small':
+          return [4, 8];
+        case 'mid':
+          return [8, 12];
+        case 'large':
+          return [12, 16];
+        default:
+          return [8, 12];
+      }
     })();
 
     if (!group || elements.length < 2) {
       return elements.map(element => {
         const elementRect = getClientRect(element);
         const isFixedTarget = hasPosition(element);
-        const top = getElementPosition(element, spotlightPadding, disableScrollParentFix);
+        const top = getElementPosition(element, padding[1], disableScrollParentFix);
 
         return {
           ...(isLegacy() ? styles.spotlightLegacy : styles.spotlight),
-          height: Math.round(elementRect.height + spotlightPadding * 2),
-          left: Math.round(elementRect.left - spotlightPadding),
+          height: Math.round(elementRect.height + padding[1] * 2),
+          left: Math.round(elementRect.left - padding[0]),
           opacity: showSpotlight ? 1 : 0,
           pointerEvents: spotlightClicks ? 'none' : 'auto',
           position: isFixedTarget ? 'fixed' : 'absolute',
           top,
           transition: 'opacity 0.2s',
-          width: Math.round(elementRect.width + spotlightPadding * 2),
+          width: Math.round(elementRect.width + padding[0] * 2),
         };
       });
     }
@@ -209,7 +231,19 @@ export default class JoyrideOverlay extends React.Component {
 
   handleScroll = () => {
     const { target } = this.props;
-    const element = getElement(target);
+    const elements = (() => {
+      if (typeof target === 'string') return [...document.querySelectorAll(target)];
+      if (Array.isArray(target)) {
+        return target.reduce(
+          (elements, t) =>
+            typeof t === 'string'
+              ? [...elements, ...document.querySelectorAll(t)]
+              : [...elements, getElement(t)],
+          [],
+        );
+      }
+      return [];
+    })();
 
     if (this.scrollParent !== document) {
       const { isScrolling } = this.state;
@@ -223,7 +257,7 @@ export default class JoyrideOverlay extends React.Component {
       this.scrollTimeout = setTimeout(() => {
         this.updateState({ isScrolling: false, showSpotlight: true });
       }, 50);
-    } else if (hasPosition(element, 'sticky')) {
+    } else if (elements.find(element => hasPosition(element, 'sticky'))) {
       this.updateState({});
     }
   };
