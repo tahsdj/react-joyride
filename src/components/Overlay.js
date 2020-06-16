@@ -152,7 +152,6 @@ export default class JoyrideOverlay extends React.Component {
     const {
       disableScrollParentFix,
       spotlightClicks,
-      spotlightPadding,
       styles,
       target,
       group,
@@ -186,6 +185,19 @@ export default class JoyrideOverlay extends React.Component {
       }
     })();
 
+    const borderRadius = (() => {
+      switch (paddingSize) {
+        case 'small':
+          return 5;
+        case 'mid':
+          return 8;
+        case 'large':
+          return 10;
+        default:
+          return 8;
+      }
+    })();
+
     if (!group || elements.length < 2) {
       return elements.map(element => {
         const elementRect = getClientRect(element);
@@ -200,6 +212,7 @@ export default class JoyrideOverlay extends React.Component {
           pointerEvents: spotlightClicks ? 'none' : 'auto',
           position: isFixedTarget ? 'fixed' : 'absolute',
           top,
+          borderRadius: `${borderRadius}px`,
           transition: 'opacity 0.2s',
           width: Math.round(elementRect.width + padding[0] * 2),
         };
