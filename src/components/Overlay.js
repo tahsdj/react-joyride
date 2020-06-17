@@ -106,7 +106,33 @@ export default class JoyrideOverlay extends React.Component {
 
   getGroupStyles = elements => {
     const { showSpotlight } = this.state;
-    const { spotlightClicks, spotlightPadding, styles } = this.props;
+    const { spotlightClicks, styles, paddingSize } = this.props;
+
+    const padding = (() => {
+      switch (paddingSize) {
+        case 'small':
+          return [8, 4];
+        case 'mid':
+          return [12, 8];
+        case 'large':
+          return [16, 12];
+        default:
+          return [12, 8];
+      }
+    })();
+
+    const borderRadius = (() => {
+      switch (paddingSize) {
+        case 'small':
+          return 5;
+        case 'mid':
+          return 8;
+        case 'large':
+          return 10;
+        default:
+          return 8;
+      }
+    })();
 
     const elementsSortedByPosY = [...elements].sort(
       (el1, el2) => el1.getBoundingClientRect().y - el2.getBoundingClientRect().y,
@@ -126,9 +152,9 @@ export default class JoyrideOverlay extends React.Component {
     ].getBoundingClientRect();
 
     const height =
-      bottomElementPos.y - topElementPos.y + bottomElementPos.height + spotlightPadding * 2;
+      bottomElementPos.y - topElementPos.y + bottomElementPos.height + padding[1] * 2;
     const width =
-      rightElementPos.x - leftElementPos.x + rightElementPos.width + spotlightPadding * 2;
+      rightElementPos.x - leftElementPos.x + rightElementPos.width + padding[0] * 2;
 
     const isFixedTarget = hasPosition(elements[0]);
 
@@ -136,11 +162,12 @@ export default class JoyrideOverlay extends React.Component {
       {
         ...(isLegacy() ? styles.spotlightLegacy : styles.spotlight),
         height: Math.round(height),
-        left: Math.round(leftElementPos.x - spotlightPadding),
+        left: Math.round(leftElementPos.x - padding[0]),
         opacity: showSpotlight ? 1 : 0,
         pointerEvents: spotlightClicks ? 'none' : 'auto',
         position: isFixedTarget ? 'fixed' : 'absolute',
-        top: topElementPos.y - spotlightPadding,
+        top: topElementPos.y - padding[1],
+        borderRadius: `${borderRadius}px`,
         transition: 'opacity 0.2s',
         width: Math.round(width),
       },
