@@ -294,7 +294,7 @@ export default class JoyrideStep extends React.Component {
           isPositioned={step.isFixed || hasPosition(target)}
           open={this.open}
           placement={step.placement}
-          target={step.target}
+          target={Array.isArray(step.target) ? step.target[0] : step.target}
           {...step.floaterProps}
         >
           <Beacon
