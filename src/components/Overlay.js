@@ -175,13 +175,13 @@ export default class JoyrideOverlay extends React.Component {
     const padding = (() => {
       switch (paddingSize) {
         case 'small':
-          return [4, 8];
+          return [8, 4];
         case 'mid':
-          return [8, 12];
+          return [12, 8];
         case 'large':
-          return [12, 16];
+          return [16, 12];
         default:
-          return [8, 12];
+          return [12, 8];
       }
     })();
 
